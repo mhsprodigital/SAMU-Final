@@ -9,6 +9,7 @@ import Settings from './components/Settings';
 import RulesView from './components/RulesView';
 import ReportsView from './components/ReportsView';
 import { FileText } from 'lucide-react';
+import ConfirmModal from './components/ConfirmModal';
 
 enum ViewState {
     DASHBOARD = 'DASHBOARD',
@@ -27,6 +28,7 @@ const App: React.FC = () => {
     const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
     const [currentWeekStart, setCurrentWeekStart] = useState<Date>(new Date());
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null);
 
     useEffect(() => {
         const initLoad = async () => {
@@ -59,9 +61,14 @@ const App: React.FC = () => {
     };
 
     const handleDeleteEmployee = (id: string) => {
-        if(window.confirm('Tem certeza que deseja excluir este servidor?')) {
-            deleteEmployee(id);
+        setEmployeeToDelete(id);
+    };
+
+    const confirmDeleteEmployee = () => {
+        if (employeeToDelete) {
+            deleteEmployee(employeeToDelete);
             setEmployees(getEmployees());
+            setEmployeeToDelete(null);
         }
     };
 
@@ -306,6 +313,14 @@ const App: React.FC = () => {
                     {renderContent()}
                 </main>
             </div>
+
+            <ConfirmModal 
+                isOpen={!!employeeToDelete}
+                title="Excluir Servidor"
+                message="Tem certeza que deseja excluir este servidor? Esta ação não pode ser desfeita."
+                onConfirm={confirmDeleteEmployee}
+                onCancel={() => setEmployeeToDelete(null)}
+            />
         </div>
     );
 };

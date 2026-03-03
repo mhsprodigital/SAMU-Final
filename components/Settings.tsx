@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { UnitStructure } from '../types';
 import { getUnits, saveUnits, clearAllData, getContractHoursOptions, saveContractHoursOptions, getGoogleScriptUrl, saveGoogleScriptUrl, syncFromGoogleSheets, syncToGoogleSheets } from '../services/storageService';
 import { Plus, Trash2, Layers, AlertTriangle, RefreshCw, Briefcase, Clock, Database, UploadCloud, DownloadCloud } from 'lucide-react';
+import ConfirmModal from './ConfirmModal';
 
 const Settings: React.FC = () => {
     const [units, setUnits] = useState<UnitStructure[]>([]);
@@ -15,6 +16,7 @@ const Settings: React.FC = () => {
     const [googleUrl, setGoogleUrl] = useState<string>('');
     const [isSyncing, setIsSyncing] = useState(false);
     const [syncMessage, setSyncMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
+    const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
     useEffect(() => {
         // Load Units/Sectors
@@ -86,10 +88,12 @@ const Settings: React.FC = () => {
     };
 
     const handleResetSystem = () => {
-        if (confirm('ATENÇÃO: ISSO APAGARÁ TODOS OS DADOS (SERVIDORES, SETORES E CONFIGURAÇÕES). A ação não pode ser desfeita.')) {
-            clearAllData();
-            window.location.reload();
-        }
+        setIsResetModalOpen(true);
+    };
+
+    const confirmResetSystem = () => {
+        clearAllData();
+        window.location.reload();
     };
 
     const handleSaveGoogleUrl = () => {
@@ -306,6 +310,14 @@ const Settings: React.FC = () => {
                     <RefreshCw size={18} /> Resetar Todo o Sistema
                 </button>
             </div>
+
+            <ConfirmModal 
+                isOpen={isResetModalOpen}
+                title="Resetar Sistema"
+                message="ATENÇÃO: ISSO APAGARÁ TODOS OS DADOS (SERVIDORES, SETORES E CONFIGURAÇÕES). A ação não pode ser desfeita."
+                onConfirm={confirmResetSystem}
+                onCancel={() => setIsResetModalOpen(false)}
+            />
         </div>
     );
 };
