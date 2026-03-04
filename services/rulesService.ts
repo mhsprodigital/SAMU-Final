@@ -28,20 +28,18 @@ export const RulesService = {
 
     // Calcula horas de um intervalo específico (para semanas quebradas entre meses)
     calculateRangeHours(employeeId: string, assignments: ShiftAssignment[], start: Date, end: Date): number {
-        const formatDateLocal = (date: Date) => {
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        };
-
-        const startStr = formatDateLocal(start);
-        const endStr = formatDateLocal(end);
+        const startTime = start.getTime();
+        const endTime = end.getTime();
 
         return assignments
             .filter(a => {
                 if (a.employeeId !== employeeId || a.shiftCode === 'BLK') return false;
-                return a.date >= startStr && a.date <= endStr;
+                
+                // Parse assignment date string (YYYY-MM-DD) to Date object
+                // We add T00:00:00 to ensure it parses as local time correctly
+                const assignmentDate = new Date(a.date + 'T00:00:00').getTime();
+                
+                return assignmentDate >= startTime && assignmentDate <= endTime;
             })
             .reduce((sum, a) => sum + a.duration, 0);
     },
